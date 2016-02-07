@@ -17,8 +17,40 @@ use Yii;
  *
  * @property Project[] $projects
  */
-class User extends \yii\db\ActiveRecord
+class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentity($id) {
+        $query = User::find()->where('id = :id', ['id' => $id]);
+        $user = $query->one();
+
+        return $user;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $type = null) {}
+
+    /**
+     * @inheritdoc
+     */
+    public function getAuthKey() {}
+
+    /**
+     * @inheritdoc
+     */
+    public function validateAuthKey($authKey) {}
+
+    /**
+     * @inheritdoc
+     */
+    public function getId() {
+        return $this->id;
+    }
+
     /**
      * @inheritdoc
      */
@@ -64,4 +96,27 @@ class User extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Project::className(), ['user_id' => 'id']);
     }
+
+    /**
+     * @param string $username
+     * @return \app\models\User
+    */
+    public static function findByUsername($username)
+    {
+        $query = User::find()->where('user_name = :user_name', ['user_name' => $username]);
+        $user = $query->one();
+
+        return $user;
+    }
+
+    /**
+     * @param string $password
+     * @param string $hash
+     * @return bool
+    */
+    public function validatePassword($password, $hash)
+    {
+        return $hash == crypt($password, $hash);
+    }
+
 }

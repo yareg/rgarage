@@ -26,19 +26,18 @@ class StatusController extends Controller
         ];
     }
 
-    /**
-     * Lists all Status models.
-     * @return mixed
-     */
     public function actionIndex()
     {
+//        if (!Yii::$app->request->isAjax) throw new \yii\web\NotFoundHttpException();
         $searchModel = new StatusSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $result = [];
+        foreach ($dataProvider->getModels() as $item) {
+            $result[$item->id] = $item->name;
+        }
 
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return $result;
     }
 
     /**
