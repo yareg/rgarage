@@ -28,7 +28,8 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             $session->open();
         }
         if (empty($session['user_ident'])) {
-            $query = User::find()->where('id = :id', ['id' => $id]);
+            $query = User::find()->select(['id', 'user_name', 'first_name', 'last_name', 'dt_created'])
+                ->where('id = :id', ['id' => $id]);
             $session['user_ident'] = $query->one();
         }
 
