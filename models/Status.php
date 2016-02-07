@@ -8,6 +8,7 @@ use Yii;
  * This is the model class for table "status".
  *
  * @property integer $id
+ * @property string $str_id
  * @property string $name
  *
  * @property Task[] $tasks
@@ -28,8 +29,8 @@ class Status extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'required'],
-            [['name'], 'string', 'max' => 255]
+            [['str_id', 'name'], 'required'],
+            [['str_id', 'name'], 'string', 'max' => 255]
         ];
     }
 
@@ -40,6 +41,7 @@ class Status extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
+            'str_id' => 'Str ID',
             'name' => 'Name',
         ];
     }

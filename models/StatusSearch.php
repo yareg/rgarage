@@ -19,7 +19,7 @@ class StatusSearch extends Status
     {
         return [
             [['id'], 'integer'],
-            [['name'], 'safe'],
+            [['str_id', 'name'], 'safe'],
         ];
     }
 
@@ -59,7 +59,8 @@ class StatusSearch extends Status
             'id' => $this->id,
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name]);
+        $query->andFilterWhere(['like', 'str_id', $this->str_id])
+            ->andFilterWhere(['like', 'name', $this->name]);
 
         return $dataProvider;
     }
