@@ -23,10 +23,16 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @inheritdoc
      */
     public static function findIdentity($id) {
-        $query = User::find()->where('id = :id', ['id' => $id]);
-        $user = $query->one();
+        $session = Yii::$app->session;
+        if (!$session->isActive) {
+            $session->open();
+        }
+        if (empty($session['user_ident'])) {
+            $query = User::find()->where('id = :id', ['id' => $id]);
+            $session['user_ident'] = $query->one();
+        }
 
-        return $user;
+        return $session['user_ident'];
     }
 
     /**
