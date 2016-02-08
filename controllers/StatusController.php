@@ -28,13 +28,10 @@ class StatusController extends Controller
 
     public function actionIndex()
     {
-//        if (!Yii::$app->request->isAjax) throw new \yii\web\NotFoundHttpException();
+        // TODO: uncomment next line
+        // if (!Yii::$app->request->isAjax) throw new \yii\web\NotFoundHttpException();
         $searchModel = new StatusSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $result = [];
-        foreach ($dataProvider->getModels() as $item) {
-            $result[$item->id] = $item->name;
-        }
+        $result = $searchModel->search(Yii::$app->request->queryParams);
 
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return $result;

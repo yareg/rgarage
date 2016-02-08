@@ -15,6 +15,7 @@ use Yii;
  */
 class Status extends \yii\db\ActiveRecord
 {
+    const STATUS_DELETED = 'deleted';
     /**
      * @inheritdoc
      */
