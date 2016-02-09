@@ -6,6 +6,7 @@ use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\Project;
+use yii\helpers\ArrayHelper;
 
 /**
  * ProjectSearch represents the model behind the search form about `app\models\Project`.
@@ -18,7 +19,7 @@ class ProjectSearch extends Project
     public function rules()
     {
         return [
-            [['id', 'user_id'], 'integer'],
+            [['id', 'user_id', 'status_id'], 'integer'],
             [['name'], 'safe'],
         ];
     }
@@ -33,35 +34,20 @@ class ProjectSearch extends Project
     }
 
     /**
-     * Creates data provider instance with search query applied
+     * Gets data
      *
-     * @param array $params
-     *
-     * @return ActiveDataProvider
+     * @return array
      */
-    public function search($params)
+    public function search()
     {
-        $query = Project::find();
+        $query = (new \yii\db\Query())->select(['p.*', 'status_str_id' => 's.str_id', 'status_name' => 's.name'])
+            ->from(['p' => 'project'])
+            ->innerJoin(['s' => 'status'], 's.id = p.status_id')
+            ->where("s.str_id != :status", ['status' => Status::STATUS_DELETED]);
 
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-        ]);
+        $projects = $query->all();
+        $projects = ArrayHelper::toArray($projects);
 
-        $this->load($params);
-
-        if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
-            return $dataProvider;
-        }
-
-        $query->andFilterWhere([
-            'id' => $this->id,
-            'user_id' => $this->user_id,
-        ]);
-
-        $query->andFilterWhere(['like', 'name', $this->name]);
-
-        return $dataProvider;
+        return $projects;
     }
 }

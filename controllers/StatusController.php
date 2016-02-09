@@ -31,7 +31,7 @@ class StatusController extends Controller
         // TODO: uncomment next line
         // if (!Yii::$app->request->isAjax) throw new \yii\web\NotFoundHttpException();
         $searchModel = new StatusSearch();
-        $result = $searchModel->search(Yii::$app->request->queryParams);
+        $result = $searchModel->search();
 
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return $result;

@@ -28,17 +28,18 @@ class ProjectController extends Controller
 
     /**
      * Lists all Project models.
+     * @throws \yii\web\NotFoundHttpException()
      * @return mixed
      */
     public function actionIndex()
     {
+        // TODO: uncomment next line
+        // if (!Yii::$app->request->isAjax) throw new \yii\web\NotFoundHttpException();
         $searchModel = new ProjectSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $result = $searchModel->search();
 
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return $result;
     }
 
     /**
@@ -56,19 +57,22 @@ class ProjectController extends Controller
     /**
      * Creates a new Project model.
      * If creation is successful, the browser will be redirected to the 'view' page.
+     * @throws \yii\web\NotFoundHttpException
      * @return mixed
      */
     public function actionCreate()
     {
+        if (!Yii::$app->request->isAjax) throw new \yii\web\NotFoundHttpException();
         $model = new Project();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            $result = ['status' => 'success'];
         } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
+            $result = ['status' => 'error', 'message' => implode('; ', $model->getErrors())];
         }
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        return $result;
     }
 
     /**

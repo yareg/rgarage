@@ -10,7 +10,9 @@ use Yii;
  * @property integer $id
  * @property string $name
  * @property integer $user_id
+ * @property integer $status_id
  *
+ * @property Status $status
  * @property User $user
  */
 class Project extends \yii\db\ActiveRecord
@@ -29,8 +31,8 @@ class Project extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'user_id'], 'required'],
-            [['user_id'], 'integer'],
+            [['name', 'user_id', 'status_id'], 'required'],
+            [['user_id', 'status_id'], 'integer'],
             [['name'], 'string', 'max' => 255]
         ];
     }
@@ -44,7 +46,16 @@ class Project extends \yii\db\ActiveRecord
             'id' => 'ID',
             'name' => 'Name',
             'user_id' => 'User ID',
+            'status_id' => 'Status ID',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStatus()
+    {
+        return $this->hasOne(Status::className(), ['id' => 'status_id']);
     }
 
     /**
