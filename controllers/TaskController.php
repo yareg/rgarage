@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\Task;
 use app\models\TaskSearch;
+use yii\base\Exception;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -28,17 +29,18 @@ class TaskController extends Controller
 
     /**
      * Lists all Task models.
+     * @param int $projectId
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex($projectId)
     {
+        // TODO: uncomment next line
+        // if (!Yii::$app->request->isAjax) throw new \yii\web\NotFoundHttpException();
         $searchModel = new TaskSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $tasks = $searchModel->search($projectId, Yii::$app->request->queryParams);
 
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return $tasks;
     }
 
     /**
@@ -63,12 +65,13 @@ class TaskController extends Controller
         $model = new Task();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            $result = ['status' => 'success'];
         } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
+            $result = ['status' => 'error', 'message' => implode('; ', $model->getErrors())];
         }
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        return $result;
     }
 
     /**
@@ -82,12 +85,13 @@ class TaskController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            $result = ['status' => 'success'];
         } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
+            $result = ['status' => 'error', 'message' => implode('; ', $model->getErrors())];
         }
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        return $result;
     }
 
     /**
@@ -98,9 +102,16 @@ class TaskController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        try {
+            $this->findModel($id)->delete();
 
-        return $this->redirect(['index']);
+            $result= ['status' => 'success'];
+        } catch (Exception $e) {
+            $result = ['status' => 'error', 'message' => $e->getMessage()];
+        }
+
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return $result;
     }
 
     /**

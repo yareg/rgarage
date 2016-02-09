@@ -86,12 +86,13 @@ class ProjectController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            $result = ['status' => 'success'];
         } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
+            $result = ['status' => 'error', 'message' => implode('; ', $model->getErrors())];
         }
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        return $result;
     }
 
     /**
@@ -102,7 +103,15 @@ class ProjectController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        try {
+            $this->findModel($id)->delete();
+
+            $result= ['status' => 'success'];
+        } catch (Exception $e) {
+            $result = ['status' => 'error', 'message' => $e->getMessage()];
+        }
+
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         return $this->redirect(['index']);
     }

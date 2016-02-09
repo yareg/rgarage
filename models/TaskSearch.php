@@ -35,36 +35,20 @@ class TaskSearch extends Task
     /**
      * Creates data provider instance with search query applied
      *
+     * @param int $projectId
      * @param array $params
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($projectId, $params)
     {
-        $query = Task::find();
+        $query = (new \yii\db\Query())->select(['t.*'])
+            ->from(['t' => 'task'])
+            ->innerJoin(['s' => 'status'], 's.id = t.status_id')
+            ->where('t.project_id = :project_id', ['project_id' => $projectId])
+            ->andWhere('s.str_id != :status_deleted', ['status_deleted' => Status::STATUS_DELETED]);
+        $tasks = $query->all();
 
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-        ]);
-
-        $this->load($params);
-
-        if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
-            return $dataProvider;
-        }
-
-        $query->andFilterWhere([
-            'id' => $this->id,
-            'project_id' => $this->project_id,
-            'dt_deadline' => $this->dt_deadline,
-            'priority' => $this->priority,
-            'status_id' => $this->status_id,
-        ]);
-
-        $query->andFilterWhere(['like', 'description', $this->description]);
-
-        return $dataProvider;
+        return $tasks;
     }
 }

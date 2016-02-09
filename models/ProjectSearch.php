@@ -46,7 +46,6 @@ class ProjectSearch extends Project
             ->where("s.str_id != :status", ['status' => Status::STATUS_DELETED]);
 
         $projects = $query->all();
-        $projects = ArrayHelper::toArray($projects);
 
         return $projects;
     }
