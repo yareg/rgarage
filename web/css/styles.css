@@ -1,0 +1,61 @@
+a.add-project {
+    margin-top: 30px;
+}
+#template {
+    display: none;
+}
+div.control-box {
+    display: none;
+}
+img.add-task {
+    cursor: pointer;
+}
+div.control-box img:not(:first-of-type) {
+    border-left: 1px solid black;
+    padding-left: 3px;
+}
+div.project-title {
+    background-color: #4674b2;
+    height: 50px;
+    line-height: 50px;
+    font-size: large;
+    color: #f3f3f3;
+}
+div.project-task {
+    background-color: #d1d1d1;
+}
+div.task-item {
+    color: #888888;
+}
+
+div.project-title, div.project-task {
+    padding: 5px 0 5px 0;
+}
+div.project-task input {
+    width: 250px;
+}
+div.task-item {
+    border-left: 1px solid #d1d1d1;
+    border-right: 1px solid #d1d1d1;
+    border-bottom: 1px solid #d1d1d1;
+}
+div.project-title div.control-box img:not(:first-of-type) {
+    border-left-color: #2aabd2;
+}
+div.project-title:hover {
+    cursor: pointer;
+}
+div.project-title:hover > div.control-box {
+    display: block;
+}
+div.task-item:hover {
+    background-color: #fcfed5;
+    cursor: pointer;
+}
+div.task-item:hover > div.control-box {
+    display: block;
+    cursor: pointer;
+}
+div.project-section {
+    margin-top: 30px;
+}

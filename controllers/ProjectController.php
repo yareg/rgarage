@@ -29,14 +29,15 @@ class ProjectController extends Controller
     /**
      * Lists all Project models.
      * @throws \yii\web\NotFoundHttpException()
+     * @throws \yii\web\ForbiddenHttpException()
      * @return mixed
      */
     public function actionIndex()
     {
-        // TODO: uncomment next line
-        // if (!Yii::$app->request->isAjax) throw new \yii\web\NotFoundHttpException();
+        if (!Yii::$app->request->isAjax) throw new \yii\web\NotFoundHttpException();
+//        if (Yii::$app->user->isGuest) throw new \yii\web\ForbiddenHttpException();
         $searchModel = new ProjectSearch();
-        $result = $searchModel->search();
+        $result = $searchModel->search((int) Yii::$app->user->id);
 
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return $result;
