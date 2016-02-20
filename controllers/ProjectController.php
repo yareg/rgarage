@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\Project;
 use app\models\ProjectSearch;
+use yii\db\Exception;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -34,8 +35,7 @@ class ProjectController extends Controller
      */
     public function actionIndex()
     {
-        if (!Yii::$app->request->isAjax) throw new \yii\web\NotFoundHttpException();
-//        if (Yii::$app->user->isGuest) throw new \yii\web\ForbiddenHttpException();
+//        if (!Yii::$app->request->isAjax) throw new \yii\web\NotFoundHttpException();
         $searchModel = new ProjectSearch();
         $result = $searchModel->search((int) Yii::$app->user->id);
 
@@ -100,21 +100,20 @@ class ProjectController extends Controller
      * Deletes an existing Project model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
-     * @return mixed
+     * @throws Exception
+     * @return Response
      */
     public function actionDelete($id)
     {
         try {
             $this->findModel($id)->delete();
-
-            $result= ['status' => 'success'];
         } catch (Exception $e) {
-            $result = ['status' => 'error', 'message' => $e->getMessage()];
+            throw new Exception($e->getMessage());
         }
 
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        return $this->redirect(['index']);
+        return ['status' => 'success'];
     }
 
     /**
@@ -126,7 +125,7 @@ class ProjectController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Project::findOne($id)) !== null) {
+        if (($model = Project::findOne(['id' => $id, 'user_id' => Yii::$app->user->id])) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

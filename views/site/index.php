@@ -2,6 +2,7 @@
 
 /* @var $this yii\web\View */
 use yii\helpers\Url;
+use yii\web\JsExpression;
 
 $this->title = 'RubyGarage Application';
 
@@ -12,14 +13,14 @@ $this->title = 'RubyGarage Application';
         "project": {
             "create": "<?=Url::toRoute('project/create'); ?>",
             "index": "<?=Url::toRoute('project/index'); ?>",
-            "update": "<?=Url::toRoute(['project/update', 'id' => ':id']); ?>",
-            "delete": "<?=Url::toRoute(['project/delete', 'id' => ':id']); ?>"
+            "update": "<?=Url::toRoute(['project/update', 'id' => '{{id}}']); ?>",
+            "delete": "<?=Url::toRoute(['project/delete', 'id' => '{{id}}']); ?>"
         },
         "task": {
             "create": "<?=Url::toRoute('task/create'); ?>",
             "index": "<?=Url::toRoute('task/index'); ?>",
-            "update": "<?=Url::toRoute(['task/update', 'id' => ':id']); ?>",
-            "delete": "<?=Url::toRoute(['task/delete', 'id' => ':id']); ?>"
+            "update": "<?=Url::toRoute(['task/update', 'id' => '{{id}}']); ?>",
+            "delete": "<?=Url::toRoute(['task/delete', 'id' => '{{id}}']); ?>"
         },
     }
 </script>
@@ -35,12 +36,12 @@ $this->title = 'RubyGarage Application';
     </div>
     <div id="template">
         <div class="row project-section">
-            <div class="row project-title">
+            <div class="row project-title" data-project-id="">
                 <div class="col-lg-1"><img src="images/icons/Text-Edit-icon.png" alt="" height="32" width="32" /></div>
                 <div class="col-lg-9 project-name">Complete the task</div>
                 <div class="col-lg-2 control-box control-box-project">
-                    <img src="images/icons/pencil-icon.png" alt="" height="32" width="32" />
-                    <img src="images/icons/edit-trash-icon.png" alt="" height="32" width="32" />
+                    <img src="images/icons/pencil-icon.png" alt="" class="edit" height="32" width="32" />
+                    <img src="images/icons/edit-trash-icon.png" alt="" class="delete" height="32" width="32" />
                 </div>
             </div>
             <div class="row project-task">
@@ -52,12 +53,46 @@ $this->title = 'RubyGarage Application';
                 <div class="col-lg-1"><input type="checkbox" /></div>
                 <div class="col-lg-9 task-title">Task description</div>
                 <div class="col-lg-2 control-box control-box-task">
-                    <img src="images/icons/Arrow-Up-3-icon.png" alt="" height="16" width="16" />
-                    <img src="images/icons/Editing-Edit-icon.png" alt="" height="16" width="16" />
-                    <img src="images/icons/Trash-full-icon.png" alt="" height="16" width="16" />
+                    <img src="images/icons/Arrow-Up-3-icon.png" alt="" class="ch-priority" height="16" width="16" />
+                    <img  src="images/icons/Editing-Edit-icon.png" alt="" class="edit" height="16" width="16" />
+                    <img src="images/icons/Trash-full-icon.png" alt="" class="delete" height="16" width="16" />
                 </div>
             </div>
         </div>
     </div>
     <input id="page" type="hidden" value="index" />
 </div>
+<?= yii\jui\Dialog::widget([
+        'id' => 'dialog_confirm_delete',
+        'clientOptions' => [
+            'autoOpen' => false,
+            'modal' => true,
+            'width' => 500,
+            'buttons' => [
+                [
+                    'text' => 'Yes',
+                    'click' => new JsExpression('function(){ deleteProject($(this).data(\'projectId\')); $(this).dialog("close");}'),
+                ],
+                [
+                    'text' => 'No',
+                    'click' => new JsExpression('function(){$(this).dialog("close");}'),
+                ]
+            ]
+        ]
+    ]
+); ?>
+<?= yii\jui\Dialog::widget([
+        'id' => 'dialog_smth_wrong',
+        'clientOptions' => [
+            'autoOpen' => false,
+            'modal' => true,
+            'title' => 'Something weng wrong...',
+            'buttons' => [
+                [
+                    'text' => 'OK',
+                    'click' => new JsExpression('function(){$(this).dialog("close");}'),
+                ]
+            ]
+        ]
+    ]
+); ?>

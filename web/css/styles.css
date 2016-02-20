@@ -59,3 +59,8 @@ div.task-item:hover > div.control-box {
 div.project-section {
     margin-top: 30px;
 }
+
+/* jquery ui dialog: hide "close" button */
+.ui-dialog-titlebar-close {
+    visibility: hidden;
+}
