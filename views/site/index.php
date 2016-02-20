@@ -29,6 +29,7 @@ $this->title = 'RubyGarage Application';
     <div class="jumbotron">
         <h1>My projects</h1>
     </div>
+
     <div class="body-content">
         <div class="row">
             <p class="text-center"><a id="new_project" class="btn btn-primary add-project" href="javascript:void(0)">Add TODO List &raquo;</a></p>
@@ -38,7 +39,7 @@ $this->title = 'RubyGarage Application';
         <div class="row project-section">
             <div class="row project-title" data-project-id="">
                 <div class="col-lg-1"><img src="images/icons/Text-Edit-icon.png" alt="" height="32" width="32" /></div>
-                <div class="col-lg-9 project-name">Complete the task</div>
+                <div class="col-lg-9 project-name html_editable"></div>
                 <div class="col-lg-2 control-box control-box-project">
                     <img src="images/icons/pencil-icon.png" alt="" class="edit" height="32" width="32" />
                     <img src="images/icons/edit-trash-icon.png" alt="" class="delete" height="32" width="32" />
@@ -96,3 +97,6 @@ $this->title = 'RubyGarage Application';
         ]
     ]
 ); ?>
+<div id="dialog_create_update_project">
+    <input type="text" class="dialog-edit" id="project_name_edit">
+</div>

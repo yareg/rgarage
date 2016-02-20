@@ -64,3 +64,6 @@ div.project-section {
 .ui-dialog-titlebar-close {
     visibility: hidden;
 }
+input.dialog-edit {
+    width: 100%;
+}
