@@ -17,6 +17,7 @@ class Status extends \yii\db\ActiveRecord
 {
     const STATUS_ACTIVE = 'active';
     const STATUS_DELETED = 'deleted';
+    const STATUS_NEW = 'new';
     /**
      * @inheritdoc
      */

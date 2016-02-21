@@ -50,6 +50,7 @@ class ProjectSearch extends Project
             ->leftJoin(['s1' => 'status'], 's1.id = t.status_id')
             ->where('user_id = :user_id', ['user_id' => $userId])
             ->andWhere('s.str_id != :status', ['status' => Status::STATUS_DELETED])
+            ->andWhere('s1.str_id is null OR s1.str_id != :task_deleted', ['task_deleted' => Status::STATUS_DELETED])
             ->orderBy('p.id');
 
         $projects = $query->all();

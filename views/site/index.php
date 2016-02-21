@@ -47,15 +47,15 @@ $this->title = 'RubyGarage Application';
             </div>
             <div class="row project-task">
                 <div class="col-lg-1"><img src="images/icons/Add-icon.png" class="add-task" alt="" height="32" width="32" /></div>
-                <div class="col-lg-9"><input type="text" placeholder="Start typing here to create a task..." /></div>
-                <div class="col-lg-2"><button type="button" class="btn btn-success">Add Task</button></div>
+                <div class="col-lg-9"><input type="text" class="new-task-name" placeholder="Start typing here to create a task..." /></div>
+                <div class="col-lg-2"><button type="button" class="btn btn-success new-task-btn">Add Task</button></div>
             </div>
-            <div class="row task-item">
+            <div class="row task-item" data-task-id="">
                 <div class="col-lg-1"><input type="checkbox" /></div>
-                <div class="col-lg-9 task-title">Task description</div>
+                <div class="col-lg-9 task-title"></div>
                 <div class="col-lg-2 control-box control-box-task">
                     <img src="images/icons/Arrow-Up-3-icon.png" alt="" class="ch-priority" height="16" width="16" />
-                    <img  src="images/icons/Editing-Edit-icon.png" alt="" class="edit" height="16" width="16" />
+                    <img src="images/icons/Editing-Edit-icon.png" alt="" class="edit" height="16" width="16" />
                     <img src="images/icons/Trash-full-icon.png" alt="" class="delete" height="16" width="16" />
                 </div>
             </div>
@@ -72,7 +72,14 @@ $this->title = 'RubyGarage Application';
             'buttons' => [
                 [
                     'text' => 'Yes',
-                    'click' => new JsExpression('function(){ deleteProject($(this).data(\'projectId\')); $(this).dialog("close");}'),
+                    'click' => new JsExpression('function(){
+                        if ($(this).data(\'projectId\') !== undefined) {
+                            deleteProject($(this).data(\'projectId\'));
+                        } else if ($(this).data(\'taskId\') !== undefined) {
+                            deleteTask($(this).data(\'taskId\'))
+                        }
+                        $(this).dialog("close");
+                    }'),
                 ],
                 [
                     'text' => 'No',

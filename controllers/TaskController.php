@@ -58,16 +58,22 @@ class TaskController extends Controller
     /**
      * Creates a new Task model.
      * If creation is successful, the browser will be redirected to the 'view' page.
+     * @throws \yii\web\NotFoundHttpException
      * @return mixed
      */
     public function actionCreate()
     {
+        if (!Yii::$app->request->isAjax) throw new \yii\web\NotFoundHttpException();
         $model = new Task();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $result = ['status' => 'success'];
+            // format task structure
+            $result = [
+                'status' => 'success',
+                'task' => $model->toArray(),
+            ];
         } else {
-            $result = ['status' => 'error', 'message' => implode('; ', $model->getErrors())];
+            $result = ['status' => 'error', 'message' => implode('; ', $model->getFirstErrors())];
         }
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
@@ -87,7 +93,7 @@ class TaskController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $result = ['status' => 'success'];
         } else {
-            $result = ['status' => 'error', 'message' => implode('; ', $model->getErrors())];
+            $result = ['status' => 'error', 'message' => implode('; ', $model->getFirstErrors())];
         }
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 

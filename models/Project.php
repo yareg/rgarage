@@ -3,7 +3,7 @@
 namespace app\models;
 
 use Yii;
-
+use yii\base\Exception;
 /**
  * This is the model class for table "project".
  *
@@ -81,5 +81,39 @@ class Project extends \yii\db\ActiveRecord
         $data['Project']['status_id'] = Status::getStatusId(Status::STATUS_ACTIVE);
 
         return parent::load($data);
+    }
+
+    /**
+     * Mark project as deleted
+    */
+    public function delete()
+    {
+        $statusDeletedId = Status::getStatusId(Status::STATUS_DELETED);
+        $this->status_id = $statusDeletedId;
+        // update all relative tasks
+        $connection = \Yii::$app->db;
+        $transaction = $connection->beginTransaction();
+        try {
+            (new \yii\db\Query())->createCommand()
+                ->update('task', ['status_id' => $statusDeletedId], ['project_id' => $this->id])
+                ->execute();
+            $this->save();
+
+            $transaction->commit();
+        } catch(Exception $e) {
+            $transaction->rollBack();
+            throw new \yii\web\BadRequestHttpException();
+        }
+    }
+
+    /**
+     * Check whether project belongs to current user
+     *
+     * @param int $projectId
+     * @return boolean
+    */
+    public static function belongsToCurrentUser($projectId)
+    {
+        return (bool) Project::findOne(['id' => $projectId, 'user_id' => Yii::$app->user->id]);
     }
 }

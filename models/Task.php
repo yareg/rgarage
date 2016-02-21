@@ -60,4 +60,39 @@ class Task extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Status::className(), ['id' => 'status_id']);
     }
+
+    /**
+     * Extend parent function
+     *
+     * @param array $data
+     * @param string $formName
+     * @throws \yii\web\ForbiddenHttpException()
+     *
+     * @return boolean
+     */
+    public function load($data, $formName = null)
+    {
+        if (! Project::belongsToCurrentUser($data['Task']['project_id'])) {
+            throw  new \yii\web\ForbiddenHttpException();
+        }
+        // set default status to new task
+        $data['Task']['status_id'] = Status::getStatusId(Status::STATUS_NEW);
+
+        return parent::load($data);
+    }
+
+    /**
+     * Mark task as deleted
+     *
+     * @throws \yii\web\ForbiddenHttpException()
+     */
+    public function delete()
+    {
+        // check permissions
+        if (! Project::belongsToCurrentUser($this->project_id)) {
+            throw new \yii\web\ForbiddenHttpException();
+        }
+        $this->status_id = Status::getStatusId(Status::STATUS_DELETED);
+        $this->save();
+    }
 }

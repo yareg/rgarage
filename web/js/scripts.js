@@ -79,6 +79,7 @@ function createProjectHtmlSections(data) {
         $head.find('div.project-name').html(project.name);
         projectTemplate.tasks = [];
         $.each(project.tasks, function (idx, task) {
+            $task.attr('data-task-id', task.task_id);
             $task.find('div.task-title').html(task.task_description);
             projectTemplate.tasks.push($task.get(0).outerHTML);
         });
@@ -180,8 +181,32 @@ function updateProject(projectId) {
     });
 }
 
+function deleteTask(taskId) {
+    var url = substitute_params(urlList.task.delete, {"id": taskId});
+    $.ajax({
+        "type": "POST",
+        "url": url,
+        "success": function (data) {
+            if ('success' === data.status) {
+                // delete on UI side
+                var $task = uiGetTaskById(taskId);
+                $task.hide('slow', function () {
+                    $task.remove();
+                });
+            }
+        },
+        "error": function () {
+            $('#dialog_smth_wrong').dialog('open');
+        }
+    });
+}
+
 function uiGetProjectById(projectId) {
     return $('[data-project-id=' + projectId + ']');
+}
+
+function uiGetTaskById(taskId) {
+    return $('[data-task-id=' + taskId + ']');
 }
 function substitute_params(url, params) {
     var result = decodeURIComponent(url);
@@ -209,6 +234,51 @@ $('div.body-content').on('click', 'div.control-box-project .edit', function () {
         .data('projectId', projectId)
         .dialog('open');
 });
+// bind new task button
+$('div.body-content').on('click', 'div.project-task .new-task-btn', function () {
+    $projectTask = $(this).closest('.project-task');
+    var projectId = $projectTask.prev().attr('data-project-id');
+    var $taskInput = $projectTask.find('input.new-task-name');
+    var taskName = $taskInput.val();
+    $.ajax({
+        type: "POST",
+        url: urlList.task.create,
+        data: {
+            'Task[project_id]': projectId,
+            'Task[description]': taskName
+        },
+        success: function (data) {
+            if ('success' === data.status) {
+                var $taskTemplate = getTemplate('task');
+                $taskTemplate.attr('data-task-id', data.task.id);
+                $taskTemplate.find('div.task-title').html(data.task.description);
+                // get last existing task to append to
+                var existingTasks = $projectTask.parent().find('.task-item');
+                if (existingTasks.length) {
+                    $taskTemplate.insertAfter(existingTasks[existingTasks.length - 1]);
+                } else {
+                    // append as first task
+                    $taskTemplate.insertAfter($projectTask);
+                }
+                // clear field on UI
+                $taskInput.val('');
+            }
+        },
+        error: function () {
+            $('#dialog_smth_wrong').dialog('open');
+        }
+    });
+});
+// bind delete task button
+$('div.body-content').on('click', 'div.task-item .delete', function () {
+    var taskId   = $(this).closest('.task-item').attr('data-task-id');
+    // set project name to dialog
+    $('#dialog_confirm_delete')
+        .dialog('option', 'title', 'Do you want to delete selected task?')
+        .data('taskId', taskId)
+        .dialog('open');
+});
+
 
 $('#new_project').click(function () {
     $('#project_name_edit').val('');

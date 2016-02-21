@@ -85,7 +85,7 @@ class ProjectController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $result = ['status' => 'success'];
         } else {
-            $result = ['status' => 'error', 'message' => implode('; ', $model->getErrors())];
+            $result = ['status' => 'error', 'message' => implode('; ', $model->getFirstErrors())];
         }
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
