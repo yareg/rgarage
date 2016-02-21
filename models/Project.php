@@ -65,4 +65,21 @@ class Project extends \yii\db\ActiveRecord
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
+
+    /**
+     * Extend parent function
+     *
+     * @param array $data
+     * @param string $formName
+     *
+     * @return boolean
+    */
+    public function load($data, $formName = null)
+    {
+        // set user ID and default status
+        $data['Project']['user_id'] = Yii::$app->user->id;
+        $data['Project']['status_id'] = Status::getStatusId(Status::STATUS_ACTIVE);
+
+        return parent::load($data);
+    }
 }

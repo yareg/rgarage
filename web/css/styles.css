@@ -67,3 +67,6 @@ div.project-section {
 input.dialog-edit {
     width: 100%;
 }
+.ui-widget-header {
+    color: #4674b2 !important;
+}

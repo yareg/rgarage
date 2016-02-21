@@ -15,6 +15,7 @@ use Yii;
  */
 class Status extends \yii\db\ActiveRecord
 {
+    const STATUS_ACTIVE = 'active';
     const STATUS_DELETED = 'deleted';
     /**
      * @inheritdoc
@@ -53,5 +54,16 @@ class Status extends \yii\db\ActiveRecord
     public function getTasks()
     {
         return $this->hasMany(Task::className(), ['status_id' => 'id']);
+    }
+
+    /**
+     * Gets status ID by str_id
+     *
+     * @param string $strId
+     * @return int
+    */
+    public static function getStatusId($strId)
+    {
+        return Status::findOne(['str_id' => $strId])->id;
     }
 }

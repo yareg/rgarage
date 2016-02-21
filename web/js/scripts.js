@@ -8,12 +8,20 @@ $(document).ready(function () {
             "modal": true,
             "width": 500,
             "buttons": [{
-                "text": "Yes", "click": function () {
-                    updateProject($(this).data('projectId'));
+                "text": "OK", "click": function () {
+                    // determine create or update project we need
+                    if (false === $(this).data('projectId')) {
+                        // create
+                        updateProject();
+                    } else {
+                        // update
+                        updateProject($(this).data('projectId'));
+                    }
+
                     $(this).dialog("close");
                 }
             }, {
-                "text": "No", "click": function () {
+                "text": "Cancel", "click": function () {
                     $(this).dialog("close");
                 }
             }]
@@ -24,8 +32,8 @@ $(document).ready(function () {
 /**
  * Acceptable values: head, toolbar, task
  */
-function get_template(part) {
-    var projectTemplate = $('#template').children().children();
+function getTemplate(part) {
+    var projectTemplate = $('#template').children().children().clone();
     if ('head' === part) {
         return $(projectTemplate[0]);
     } else if ('toolbar' === part) {
@@ -38,51 +46,82 @@ function get_template(part) {
 function getProjectList() {
     // get project list
     $.get(urlList.project.index, function (data) {
-        var projectTemplates = [];
-        var $head = get_template('head');
-        var $toolbar = get_template('toolbar');
-        var $task = get_template('task');
-
-        // process each project
-        $.each(data, function (index, project) {
-            var projectTemplate = {};
-            // update html project form
-            // set project ID
-            $head.attr('data-project-id', index);
-            // set project name - to display
-            $head.find('div.project-name').html(project.name);
-            projectTemplate.tasks = [];
-            $.each(project.tasks, function (idx, task) {
-                $task.find('div.task-title').html(task.task_description);
-                projectTemplate.tasks.push($task.get(0).outerHTML);
-            });
-            projectTemplate.head = $head.get(0).outerHTML;
-            projectTemplate.toolbar = $toolbar.get(0).outerHTML;
-            projectTemplates.push(projectTemplate);
-        });
+        var projectTemplates = createProjectHtmlSections(data);
         // draw existing projects
         if (projectTemplates.length) {
             for (var i in projectTemplates) {
-                var projectHTML = '<div class="row project-section">' +
-                    projectTemplates[i].head +
-                    projectTemplates[i].toolbar;
-                for (var j in projectTemplates[i].tasks) {
-                    projectHTML += projectTemplates[i].tasks[j];
-                }
-                projectHTML += '</div>';
-
-                $body = $('.body-content');
-                // get last .project section
-                $children = $body.children('.project-section');
-                if ($children.length) {
-                    $($children[$children.length - 1]).after(projectHTML);
-                } else {
-                    // insert first
-                    $body.prepend(projectHTML);
-                }
+                projectHTML = createProjectHtml(projectTemplates[i].head, projectTemplates[i].toolbar, projectTemplates[i].tasks);
+                drawProject(projectHTML);
             }
         }
     });
+}
+
+/**
+ * Substitutes data into project html templates
+ * @param data
+ * @returns {Array}
+ */
+function createProjectHtmlSections(data) {
+    var projectTemplates = [];
+    var $head = getTemplate('head');
+    var $toolbar = getTemplate('toolbar');
+    var $task = getTemplate('task');
+
+    // process each project
+    $.each(data, function (index, project) {
+        project.tasks = project.tasks || [];
+        var projectTemplate = {};
+        // update html project form
+        // set project ID
+        $head.attr('data-project-id', index);
+        // set project name - to display
+        $head.find('div.project-name').html(project.name);
+        projectTemplate.tasks = [];
+        $.each(project.tasks, function (idx, task) {
+            $task.find('div.task-title').html(task.task_description);
+            projectTemplate.tasks.push($task.get(0).outerHTML);
+        });
+        projectTemplate.head = $head.get(0).outerHTML;
+        projectTemplate.toolbar = $toolbar.get(0).outerHTML;
+        projectTemplates.push(projectTemplate);
+    });
+
+    return projectTemplates;
+}
+/**
+ * Generates HTML for project to display om page
+ * @param string head
+ * @param string toolbar
+ * @param string tasks
+ * @returns string
+ */
+function createProjectHtml(head, toolbar, tasks) {
+    tasks = tasks || [];
+    var projectHTML = '<div class="row project-section">' + head + toolbar;
+    for (var j in tasks) {
+        projectHTML += tasks[j];
+    }
+    projectHTML += '</div>';
+
+    return projectHTML;
+}
+
+/**
+ * Draw project HTML
+ *
+ * @param string html
+ */
+function drawProject(html) {
+    $body = $('.body-content');
+    // get last .project section
+    $children = $body.children('.project-section');
+    if ($children.length) {
+        $($children[$children.length - 1]).after(html);
+    } else {
+        // insert first
+        $body.prepend(html);
+    }
 }
 
 function deleteProject(projectId) {
@@ -93,9 +132,9 @@ function deleteProject(projectId) {
         "success": function (data) {
             if ('success' === data.status) {
                 // delete on UI side
-                var $project = ui_get_project_by_id(projectId).parent();
+                var $project = uiGetProjectById(projectId).parent();
                 $project.hide('slow', function () {
-                    $project.remove()
+                    $project.remove();
                 });
             }
         },
@@ -106,7 +145,14 @@ function deleteProject(projectId) {
 }
 
 function updateProject(projectId) {
-    var url = substitute_params(urlList.project.update, {"id": projectId});
+    var update = (undefined === projectId) ? false : true;
+    if (!update) {
+        // create
+        var url = urlList.project.create;
+    } else {
+        // update
+        var url = substitute_params(urlList.project.update, {"id": projectId});
+    }
     var projectName = $('#project_name_edit').val();
     $.ajax({
         type: "POST",
@@ -116,8 +162,16 @@ function updateProject(projectId) {
         },
         success: function (data) {
             if ('success' === data.status) {
-                // update on UI side
-                ui_get_project_by_id(projectId).find('div.project-name').html(projectName);
+                if (!update) {
+                    // generate HTML
+                    var projectHTML = createProjectHtmlSections(data.project);
+                    projectHTML = createProjectHtml(projectHTML[0].head, projectHTML[0].toolbar);
+                    // display on page
+                    drawProject(projectHTML);
+                }else {
+                    // update on UI side
+                    uiGetProjectById(projectId).find('div.project-name').html(projectName);
+                }
             }
         },
         error: function () {
@@ -126,7 +180,7 @@ function updateProject(projectId) {
     });
 }
 
-function ui_get_project_by_id(projectId) {
+function uiGetProjectById(projectId) {
     return $('[data-project-id=' + projectId + ']');
 }
 function substitute_params(url, params) {
@@ -151,11 +205,16 @@ $('div.body-content').on('click', 'div.control-box-project .edit', function () {
     // set project name to dialog
     $('#project_name_edit').val($(this).parent().prev('.project-name').html());
     $('#dialog_create_update_project')
-        .dialog('option', 'title', 'New project name')
+        .dialog('option', 'title', 'Project editing')
         .data('projectId', projectId)
         .dialog('open');
 });
 
 $('#new_project').click(function () {
-
+    $('#project_name_edit').val('');
+    $('#dialog_create_update_project')
+        .dialog('option', 'title', 'New project name')
+        // to correctly recognize set variable or no
+        .data('projectId', false)
+        .dialog('open');
 });

@@ -35,24 +35,12 @@ class ProjectController extends Controller
      */
     public function actionIndex()
     {
-//        if (!Yii::$app->request->isAjax) throw new \yii\web\NotFoundHttpException();
+        if (!Yii::$app->request->isAjax) throw new \yii\web\NotFoundHttpException();
         $searchModel = new ProjectSearch();
         $result = $searchModel->search((int) Yii::$app->user->id);
 
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return $result;
-    }
-
-    /**
-     * Displays a single Project model.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
     }
 
     /**
@@ -67,10 +55,18 @@ class ProjectController extends Controller
         $model = new Project();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $result = ['status' => 'success'];
+            $result = [
+                'status' => 'success',
+                'project' => [
+                    $model->toArray(['id'])['id'] => [
+                        'name' => $model->toArray(['name'])['name'],
+                    ],
+                ],
+            ];
         } else {
-            $result = ['status' => 'error', 'message' => implode('; ', $model->getErrors())];
+            $result = ['status' => 'error', 'message' => implode('; ', $model->getFirstErrors())];
         }
+
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         return $result;
