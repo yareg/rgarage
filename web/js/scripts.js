@@ -322,6 +322,18 @@ $('div.body-content').on('click', 'div.task-item .edit', function () {
         .data('taskId', taskId)
         .dialog('open');
 });
+// bind priority task button
+$('div.body-content').on('click', 'div.task-item .ch-priority', function (e) {
+    const ARROW_UP = 'up';
+    const ARROW_DOWN = 'down';
+
+    var $taskItem = $(this).closest('.task-item');
+    var taskId   = $taskItem.attr('data-task-id');
+    var offset = $(this).offset();
+    offset = e.pageY - offset.top;
+    var direction = (offset < 10) ? ARROW_UP : ARROW_DOWN;
+    alert(direction);
+});
 
 
 $('#new_project').click(function () {
