@@ -80,6 +80,8 @@ function createProjectHtmlSections(data) {
         projectTemplate.tasks = [];
         $.each(project.tasks, function (idx, task) {
             $task.attr('data-task-id', task.task_id);
+            $task.attr('data-task-status-id', task.task_status_id);
+            $task.attr('data-task-deadline', task.task_deadline ? task.task_deadline : "");
             $task.find('div.task-title').html(task.task_description);
             projectTemplate.tasks.push($task.get(0).outerHTML);
         });
@@ -126,7 +128,7 @@ function drawProject(html) {
 }
 
 function deleteProject(projectId) {
-    var url = substitute_params(urlList.project.delete, {"id": projectId});
+    var url = substituteParams(urlList.project.delete, {"id": projectId});
     $.ajax({
         "type": "POST",
         "url": url,
@@ -152,7 +154,7 @@ function updateProject(projectId) {
         var url = urlList.project.create;
     } else {
         // update
-        var url = substitute_params(urlList.project.update, {"id": projectId});
+        var url = substituteParams(urlList.project.update, {"id": projectId});
     }
     var projectName = $('#project_name_edit').val();
     $.ajax({
@@ -182,7 +184,7 @@ function updateProject(projectId) {
 }
 
 function deleteTask(taskId) {
-    var url = substitute_params(urlList.task.delete, {"id": taskId});
+    var url = substituteParams(urlList.task.delete, {"id": taskId});
     $.ajax({
         "type": "POST",
         "url": url,
@@ -201,6 +203,37 @@ function deleteTask(taskId) {
     });
 }
 
+function editTask(taskId) {
+    var url = substituteParams(urlList.task.update, {"id": taskId});
+    var name = $('#task-edit-name').val();
+    var statusId = $('#task-edit-status').val();
+    var deadline = $('#task-edit-deadline').datepicker('getDate') ? $('#task-edit-deadline').datepicker('getDate')/1000 : null;
+
+    $.ajax({
+        "type": "POST",
+        "url": url,
+        "data": {
+            "Task[description]": name,
+            "Task[status_id]": statusId,
+            "Task[dt_deadline]": deadline
+        },
+        "success": function (data) {
+            if ('success' === data.status) {
+                // update on UI side
+                var $task = uiGetTaskById(taskId);
+                $task.find('.task-title').html(data.task.description);
+                $task.attr('data-task-status-id', data.task.status_id);
+                $task.attr('data-task-deadline', data.task.dt_deadline);
+            }
+        },
+        "error": function () {
+            $('#dialog_smth_wrong').dialog('open');
+        }
+    });
+
+
+}
+
 function uiGetProjectById(projectId) {
     return $('[data-project-id=' + projectId + ']');
 }
@@ -208,7 +241,7 @@ function uiGetProjectById(projectId) {
 function uiGetTaskById(taskId) {
     return $('[data-task-id=' + taskId + ']');
 }
-function substitute_params(url, params) {
+function substituteParams(url, params) {
     var result = decodeURIComponent(url);
     $.each(params, function(key, value) {
         result = result.replace('{{' + key + '}}', value);
@@ -272,9 +305,20 @@ $('div.body-content').on('click', 'div.project-task .new-task-btn', function () 
 // bind delete task button
 $('div.body-content').on('click', 'div.task-item .delete', function () {
     var taskId   = $(this).closest('.task-item').attr('data-task-id');
-    // set project name to dialog
     $('#dialog_confirm_delete')
         .dialog('option', 'title', 'Do you want to delete selected task?')
+        .data('taskId', taskId)
+        .dialog('open');
+});
+// bind edit task button
+$('div.body-content').on('click', 'div.task-item .edit', function () {
+    var $taskItem = $(this).closest('.task-item');
+    var taskId   = $taskItem.attr('data-task-id');
+    // set current value
+    $('#task-edit-name').val($taskItem.find('div.task-title').html());
+    // set status
+    $('#task-edit-status').val($taskItem.attr('data-task-status-id'));
+    $('#dialog_edit_task')
         .data('taskId', taskId)
         .dialog('open');
 });

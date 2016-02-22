@@ -72,11 +72,15 @@ class Task extends \yii\db\ActiveRecord
      */
     public function load($data, $formName = null)
     {
-        if (! Project::belongsToCurrentUser($data['Task']['project_id'])) {
+        // get project ID - depends on new record or updated
+        $projectId = isset($data['Task']['project_id']) ? $data['Task']['project_id'] : $this->project_id;
+        if (! Project::belongsToCurrentUser($projectId)) {
             throw  new \yii\web\ForbiddenHttpException();
         }
-        // set default status to new task
-        $data['Task']['status_id'] = Status::getStatusId(Status::STATUS_NEW);
+        // set default status to new task if empty
+        if (empty($data['Task']['status_id'] )) {
+            $data['Task']['status_id'] = Status::getStatusId(Status::STATUS_NEW);
+        }
 
         return parent::load($data);
     }

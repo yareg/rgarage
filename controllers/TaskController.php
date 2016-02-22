@@ -91,7 +91,10 @@ class TaskController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $result = ['status' => 'success'];
+            $result = [
+                'status' => 'success',
+                'task' => $model->toArray(),
+            ];
         } else {
             $result = ['status' => 'error', 'message' => implode('; ', $model->getFirstErrors())];
         }

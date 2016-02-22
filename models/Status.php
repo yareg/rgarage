@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "status".
@@ -66,5 +67,27 @@ class Status extends \yii\db\ActiveRecord
     public static function getStatusId($strId)
     {
         return Status::findOne(['str_id' => $strId])->id;
+    }
+
+    /**
+     * Get array status ID => value by str_id
+     * @param array $strIds
+     * @return array
+    */
+    public static function getStatusList(array $strIds)
+    {
+        $query = Status::find();
+        $items = ArrayHelper::toArray($query->all());
+
+        $result = [];
+        foreach ($strIds as $strId) {
+            foreach($items as $statusItem) {
+                if ($statusItem['str_id'] == $strId) {
+                    $result[$statusItem['id']] = $statusItem['name'];
+                }
+            }
+        }
+
+        return $result;
     }
 }

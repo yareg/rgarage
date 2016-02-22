@@ -50,7 +50,7 @@ $this->title = 'RubyGarage Application';
                 <div class="col-lg-9"><input type="text" class="new-task-name" placeholder="Start typing here to create a task..." /></div>
                 <div class="col-lg-2"><button type="button" class="btn btn-success new-task-btn">Add Task</button></div>
             </div>
-            <div class="row task-item" data-task-id="">
+            <div class="row task-item" data-task-id="" data-task-status-id="" data-task-deadline="">
                 <div class="col-lg-1"><input type="checkbox" /></div>
                 <div class="col-lg-9 task-title"></div>
                 <div class="col-lg-2 control-box control-box-task">
@@ -107,3 +107,34 @@ $this->title = 'RubyGarage Application';
 <div id="dialog_create_update_project">
     <input type="text" class="dialog-edit" id="project_name_edit">
 </div>
+<?php $editTaskDialog = yii\jui\Dialog::begin([
+    'id' => 'dialog_edit_task',
+    'clientOptions' => [
+        'autoOpen' => false,
+        'modal' => true,
+        'width' => 500,
+        'title' => 'Task editing',
+        'buttons' => [
+            [
+                'text' => 'OK',
+                'click' => new JsExpression('function(){ editTask($(this).data(\'taskId\')); $(this).dialog("close");}'),
+            ],
+            [
+                'text' => 'Cancel',
+                'click' => new JsExpression('function(){$(this).dialog("close");}'),
+            ],
+        ]
+    ]
+]);
+?>
+<div class="row">
+    <span>Task name: </span><input type="input" id="task-edit-name" />
+</div>
+<div class="row">
+    <span>Status: </span><?=\yii\helpers\BaseHtml::dropDownList('task_status', '', $taskStatusList, ['id' => 'task-edit-status']); ?>
+</div>
+<div class="row">
+    <span>Deadline: </span><?= \yii\jui\DatePicker::widget(['id' => 'task-edit-deadline', 'dateFormat' => 'dd.MM.yy'
+    ]) ?>
+</div>
+<?php \yii\jui\Dialog::end() ?>

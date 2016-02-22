@@ -70,3 +70,9 @@ input.dialog-edit {
 .ui-widget-header {
     color: #4674b2 !important;
 }
+#dialog_edit_task .row {
+    min-height: 35px;
+}
+#dialog_edit_task select, #dialog_edit_task input {
+    width: 50%;
+}

@@ -43,7 +43,7 @@ class ProjectSearch extends Project
     {
         $query = (new \yii\db\Query())->select(['p.*', 'status_str_id' => 's.str_id', 'status_name' => 's.name',
             'task_id' => 't.id', 'task_description' => 't.description', 'task_deadline' => 't.dt_deadline',
-            'task_priority' => 't.priority', 'task_status' => 's1.name'])
+            'task_priority' => 't.priority', 'task_status_id' => 's1.id'])
             ->from(['p' => 'project'])
             ->innerJoin(['s' => 'status'], 's.id = p.status_id')
             ->leftJoin(['t' => 'task'], 't.project_id = p.id')
