@@ -230,8 +230,6 @@ function editTask(taskId) {
             $('#dialog_smth_wrong').dialog('open');
         }
     });
-
-
 }
 
 function uiGetProjectById(projectId) {
@@ -314,10 +312,20 @@ $('div.body-content').on('click', 'div.task-item .delete', function () {
 $('div.body-content').on('click', 'div.task-item .edit', function () {
     var $taskItem = $(this).closest('.task-item');
     var taskId   = $taskItem.attr('data-task-id');
+    var deadline = $taskItem.attr('data-task-deadline');
     // set current value
     $('#task-edit-name').val($taskItem.find('div.task-title').html());
     // set status
     $('#task-edit-status').val($taskItem.attr('data-task-status-id'));
+    console.log($taskItem.attr('data-task-deadline'));
+    // set deadline
+    if (deadline) {
+        $('#task-edit-deadline').datepicker('setDate', new Date(deadline*1000));
+    } else {
+        $('#task-edit-deadline').datepicker('setDate', null);
+    }
+    // open
+    $('#task-edit-deadline').datepicker
     $('#dialog_edit_task')
         .data('taskId', taskId)
         .dialog('open');
