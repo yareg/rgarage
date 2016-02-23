@@ -230,8 +230,6 @@ function editTask(taskId) {
             $('#dialog_smth_wrong').dialog('open');
         }
     });
-
-
 }
 
 function uiGetProjectById(projectId) {
