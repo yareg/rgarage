@@ -77,11 +77,12 @@ class Task extends \yii\db\ActiveRecord
         if (! Project::belongsToCurrentUser($projectId)) {
             throw  new \yii\web\ForbiddenHttpException();
         }
-        // set default status to new task if empty
+        // set default status to new task if empty - means new task is creating
         if (empty($data['Task']['status_id'] )) {
             $data['Task']['status_id'] = Status::getStatusId(Status::STATUS_NEW);
+            // get appropriate "priority" value
+            $data['Task']['priority'] = (new TaskSearch())->searchPriority($projectId);
         }
-
         return parent::load($data);
     }
 
@@ -98,5 +99,35 @@ class Task extends \yii\db\ActiveRecord
         }
         $this->status_id = Status::getStatusId(Status::STATUS_DELETED);
         $this->save();
+    }
+
+    /**
+     * Exchange priority field values
+     * @param Task $currentModel
+     * @param Task $exchangeModel
+     * @throws ErrorException
+     * @return array
+    */
+    public static function exchangePriority(Task $currentModel, Task $exchangeModel)
+    {
+        $db = $currentModel->getDb();
+        $db->beginTransaction();
+        try {
+            $currentTmp = $currentModel->priority;
+            $exchangeTmp = $exchangeModel->priority;
+            $currentModel->priority = 0;
+            $currentModel->save();
+            $exchangeModel->priority = $currentTmp;
+            $exchangeModel->save();
+            $currentModel->priority = $exchangeTmp;
+            $currentModel->save();
+
+            $db->getTransaction()->commit();
+        } catch (Exception $e) {
+            $db->getTransaction()->rollBack();
+            throw new ErrorException($e->getMessage());
+        }
+
+        return ['status' => 'success'];
     }
 }

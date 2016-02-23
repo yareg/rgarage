@@ -62,7 +62,7 @@ CREATE TABLE `task` (
   `project_id` int(11) unsigned NOT NULL,
   `description` varchar(255) NOT NULL,
   `dt_deadline` int(11) unsigned DEFAULT NULL,
-  `priority` smallint(11) DEFAULT NULL,
+  `priority` int(11) NOT NULL,
   `status_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `u_prior` (`project_id`,`priority`),
