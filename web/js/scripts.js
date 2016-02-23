@@ -17,12 +17,11 @@ $(document).ready(function () {
                         // update
                         updateProject($(this).data('projectId'));
                     }
-
-                    $(this).dialog("close");
                 }
             }, {
                 "text": "Cancel", "click": function () {
                     $(this).dialog("close");
+                    $('#dialog_create_update_project_error').hide();
                 }
             }]
         });
@@ -157,6 +156,9 @@ function updateProject(projectId) {
         var url = substituteParams(urlList.project.update, {"id": projectId});
     }
     var projectName = $('#project_name_edit').val();
+    if (! validator.projectAdd()) {
+        return false;
+    }
     $.ajax({
         type: "POST",
         url: url,
@@ -175,6 +177,10 @@ function updateProject(projectId) {
                     // update on UI side
                     uiGetProjectById(projectId).find('div.project-name').html(projectName);
                 }
+                $('#dialog_create_update_project').dialog('close');
+            } else if ('error' === data.status) {
+                $('#dialog_create_update_project_error').text(data.message);
+                $('#dialog_create_update_project_error').show();
             }
         },
         error: function () {
@@ -268,6 +274,13 @@ $('div.body-content').on('click', 'div.control-box-project .edit', function () {
 // bind new task button
 $('div.body-content').on('click', 'div.project-task .new-task-btn', function () {
     $projectTask = $(this).closest('.project-task');
+    if (!validator.taskAdd($projectTask)) {
+        return false;
+    }
+    // hide error message - if displayer
+    $errorMessage = $projectTask.find('.new-task-name-error');
+    $errorMessage.hide();
+
     var projectId = $projectTask.prev().attr('data-project-id');
     var $taskInput = $projectTask.find('input.new-task-name');
     var taskName = $taskInput.val();
@@ -293,6 +306,9 @@ $('div.body-content').on('click', 'div.project-task .new-task-btn', function () 
                 }
                 // clear field on UI
                 $taskInput.val('');
+            } else if ('error' == data.status) {
+                $errorMessage.text(data.message);
+                $errorMessage.show();
             }
         },
         error: function () {
@@ -362,7 +378,6 @@ $('div.body-content').on('click', 'div.task-item .ch-priority', function (e) {
     });
 });
 
-
 $('#new_project').click(function () {
     $('#project_name_edit').val('');
     $('#dialog_create_update_project')
@@ -371,3 +386,45 @@ $('#new_project').click(function () {
         .data('projectId', false)
         .dialog('open');
 });
+
+var validator = {
+    projectAdd: function() {
+        var result = true;
+        var projectName = $('#project_name_edit').val();
+        $errorBox = $('#dialog_create_update_project_error');
+        if (projectName.length < 3) {
+            $errorBox.text('Project name should have at least 3 characters long');
+            result = false;
+        }
+        if (projectName.length > 60) {
+            $errorBox.text('Project name cannot be longer, than 60 symbols');
+            result = false
+        }
+        if (!result) {
+            $errorBox.show();
+        }
+
+        return result;
+    },
+    taskAdd: function($task) {
+        var taskName = $task.find('input.new-task-name').val();
+        var result = true;
+        $errorBox = $task.find('.new-task-name-error');
+        if (taskName.length < 3) {
+            $errorBox.text('Task name should have at least 3 characters long');
+            var result = false;
+        }
+        if (taskName.length > 255) {
+            $errorBox.text('Task name cannot be longer, than 255 symbols');
+            var result = false;
+        }
+
+        $('div.body-content').on('click', $errorBox, function() {
+            $errorBox.hide();
+        });
+        if (!result) {
+            $errorBox.show();
+        }
+        return result;
+    }
+}
