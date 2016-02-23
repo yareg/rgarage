@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\Task;
 use app\models\TaskSearch;
+use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -15,6 +16,9 @@ use yii\filters\VerbFilter;
  */
 class TaskController extends Controller
 {
+    CONST DIRECTION_UP = 1;
+    CONST DIRECTION_DOWN = 2;
+
     public function behaviors()
     {
         return [
@@ -120,6 +124,51 @@ class TaskController extends Controller
         }
 
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return $result;
+    }
+
+    /**
+     * Increase task priority
+     * @param int $id
+     * @return mixed
+    */
+    public function actionPriorityUp($id)
+    {
+        return $this->taskPriorityChange($id, self::DIRECTION_UP);
+    }
+
+    /**
+     * Decrease task priority
+     * @param int $id
+     * @return mixed
+    */
+    public function actionPriorityDown($id)
+    {
+        return $this->taskPriorityChange($id, self::DIRECTION_DOWN);
+    }
+
+    /**
+     * Change task priority - exchange priority with another
+     * @param int $taskId
+     * @param int $direction
+     * @return mixed
+    */
+    private function taskPriorityChange($taskId, $direction)
+    {
+        $currentModel = $this->findModel($taskId);
+        $exchangeWith = (new TaskSearch())->getModelExchangePriority($currentModel->project_id, $currentModel->priority, $direction);
+        // get ID
+        $exchangeID = $exchangeWith->asArray()->one()['id'];
+        if ($exchangeID) {
+            $exchangeModel = $this->findModel($exchangeID);
+            // exchange priority values
+            $result = Task::exchangePriority($currentModel, $exchangeModel);
+        } else {
+            $result = ['status' => 'impossible'];
+        }
+
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
         return $result;
     }
 

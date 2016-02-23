@@ -20,6 +20,8 @@ $this->title = 'RubyGarage Application';
             "create": "<?=Url::toRoute('task/create'); ?>",
             "index": "<?=Url::toRoute('task/index'); ?>",
             "update": "<?=Url::toRoute(['task/update', 'id' => '{{id}}']); ?>",
+            "priorityUp": "<?=Url::toRoute(['task/priority-up', 'id' => '{{id}}']); ?>",
+            "priorityDown": "<?=Url::toRoute(['task/priority-down', 'id' => '{{id}}']); ?>",
             "delete": "<?=Url::toRoute(['task/delete', 'id' => '{{id}}']); ?>"
         },
     }

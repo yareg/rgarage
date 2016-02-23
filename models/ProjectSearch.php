@@ -51,7 +51,7 @@ class ProjectSearch extends Project
             ->where('user_id = :user_id', ['user_id' => $userId])
             ->andWhere('s.str_id != :status', ['status' => Status::STATUS_DELETED])
             ->andWhere('s1.str_id is null OR s1.str_id != :task_deleted', ['task_deleted' => Status::STATUS_DELETED])
-            ->orderBy('p.id');
+            ->orderBy('p.id, t.priority ASC');
 
         $projects = $query->all();
 

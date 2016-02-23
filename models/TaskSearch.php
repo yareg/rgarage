@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\controllers\TaskController;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -50,5 +51,47 @@ class TaskSearch extends Task
         $tasks = $query->all();
 
         return $tasks;
+    }
+
+    /**
+     * Return priority for new task based on max value existing for project
+     * @param int $projectId
+     * @return int
+    */
+    public function searchPriority($projectId)
+    {
+        $query = (new \yii\db\Query())->select(['new_priority' => '(IFNULL(MAX(priority), 0) + 1)'])
+            ->from(['t' => 'task'])
+            ->where('t.project_id = :project_id', ['project_id' => $projectId]);
+
+        return $query->one()['new_priority'];
+    }
+
+    /**
+     * Get neighbor model to be exchanged by priority with already loaded task
+     * @param int $projectId
+     * @param int $priority
+     * @param int $direction
+     * @throws NotFoundHttpException
+     * @return Task
+    */
+    public function getModelExchangePriority($projectId, $priority, $direction)
+    {
+        if (TaskController::DIRECTION_UP == $direction) {
+            $condition = '<';
+            $order = ' DESC';
+        } else if (TaskController::DIRECTION_DOWN == $direction) {
+            $condition = '>';
+            $order = ' ASC';
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');;
+        }
+        $model = Task::find()
+            ->where(['project_id' => $projectId])
+            ->andWhere([$condition, 'priority', $priority])
+            ->andWhere('status_id != :deleted', ['deleted' => Status::getStatusId(Status::STATUS_DELETED)])
+            ->orderBy('priority' . $order)
+            ->limit(1);
+         return $model;
     }
 }

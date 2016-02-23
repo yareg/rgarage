@@ -324,15 +324,34 @@ $('div.body-content').on('click', 'div.task-item .edit', function () {
 });
 // bind priority task button
 $('div.body-content').on('click', 'div.task-item .ch-priority', function (e) {
-    const ARROW_UP = 'up';
-    const ARROW_DOWN = 'down';
+    const ARROW_UP = 1;
+    const ARROW_DOWN = 2;
 
     var $taskItem = $(this).closest('.task-item');
     var taskId   = $taskItem.attr('data-task-id');
     var offset = $(this).offset();
     offset = e.pageY - offset.top;
     var direction = (offset < 10) ? ARROW_UP : ARROW_DOWN;
-    alert(direction);
+    //substituteParams(urlList.task.update, {"id": taskId})
+    var url = (ARROW_UP == direction) ? urlList.task.priorityUp : urlList.task.priorityDown;
+    url = substituteParams(url, {"id": taskId});
+    $.ajax({
+        "type": "POST",
+        "url": url,
+        "success": function (data) {
+            if ('success' === data.status) {
+                // update on UI side
+                if (ARROW_UP == direction) {
+                    $taskItem.insertBefore($taskItem.prev())
+                } else if (ARROW_DOWN == direction) {
+                    $taskItem.insertAfter($taskItem.next())
+                }
+            }
+        },
+        "error": function () {
+            $('#dialog_smth_wrong').dialog('open');
+        }
+    });
 });
 
 
