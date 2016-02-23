@@ -49,7 +49,10 @@ $this->title = 'RubyGarage Application';
             </div>
             <div class="row project-task">
                 <div class="col-lg-1"><img src="images/icons/Add-icon.png" class="add-task" alt="" height="32" width="32" /></div>
-                <div class="col-lg-9"><input type="text" class="new-task-name" placeholder="Start typing here to create a task..." /></div>
+                <div class="col-lg-9">
+                    <input type="text" class="new-task-name" placeholder="Start typing here to create a task..." />
+                    <span class="error-summary error-messages new-task-name-error" ></span>
+                </div>
                 <div class="col-lg-2"><button type="button" class="btn btn-success new-task-btn">Add Task</button></div>
             </div>
             <div class="row task-item" data-task-id="" data-task-status-id="" data-task-deadline="">
@@ -108,6 +111,7 @@ $this->title = 'RubyGarage Application';
 ); ?>
 <div id="dialog_create_update_project">
     <input type="text" class="dialog-edit" id="project_name_edit">
+    <p id="dialog_create_update_project_error" class="error-summary error-messages"></p>
 </div>
 <?php $editTaskDialog = yii\jui\Dialog::begin([
     'id' => 'dialog_edit_task',

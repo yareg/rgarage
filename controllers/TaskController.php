@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use Yii;
 use app\models\Task;
+use app\models\Project;
 use app\models\TaskSearch;
 use yii\base\Exception;
 use yii\web\Controller;

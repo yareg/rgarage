@@ -31,9 +31,10 @@ class Project extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'user_id', 'status_id'], 'required'],
+            [['name', 'user_id', 'status_id'], 'required', 'message' => '{attribute} cannot be blank.'],
             [['user_id', 'status_id'], 'integer'],
-            [['name'], 'string', 'max' => 255]
+            [['name'], 'string', 'max' => 60, 'tooLong' => 'Length cannot be more, then 60 symbols'],
+            [['name'], 'string', 'min' => 3, 'tooShort' => 'Length cannot be less, then 3 symbols'],
         ];
     }
 
@@ -44,7 +45,7 @@ class Project extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Name',
+            'name' => 'Project name',
             'user_id' => 'User ID',
             'status_id' => 'Status ID',
         ];

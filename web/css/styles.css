@@ -76,3 +76,6 @@ input.dialog-edit {
 #dialog_edit_task select, #dialog_edit_task input {
     width: 50%;
 }
+.error-messages {
+    display: none;
+}

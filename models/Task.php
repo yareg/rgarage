@@ -32,9 +32,10 @@ class Task extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['project_id', 'description', 'status_id'], 'required'],
+            [['project_id', 'description', 'status_id'], 'required', 'message' => '{attribute} cannot be empty.'],
             [['project_id', 'dt_deadline', 'priority', 'status_id'], 'integer'],
-            [['description'], 'string']
+            [['description'], 'string', 'max' => 255, 'tooLong' => 'Length cannot be more, then 255 symbols'],
+            [['description'], 'string', 'min' => 3, 'tooShort' => 'Length cannot be less, then 3 symbols'],
         ];
     }
 
@@ -46,8 +47,8 @@ class Task extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'project_id' => 'Project ID',
-            'description' => 'Description',
-            'dt_deadline' => 'Dt Deadline',
+            'description' => 'Task name',
+            'dt_deadline' => 'Deadline',
             'priority' => 'Priority',
             'status_id' => 'Status ID',
         ];
