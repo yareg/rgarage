@@ -75,13 +75,13 @@ function createProjectHtmlSections(data) {
         // set project ID
         $head.attr('data-project-id', index);
         // set project name - to display
-        $head.find('div.project-name').html(project.name);
+        $head.find('div.project-name').text(project.name);
         projectTemplate.tasks = [];
         $.each(project.tasks, function (idx, task) {
             $task.attr('data-task-id', task.task_id);
             $task.attr('data-task-status-id', task.task_status_id);
             $task.attr('data-task-deadline', task.task_deadline ? task.task_deadline : "");
-            $task.find('div.task-title').html(task.task_description);
+            $task.find('div.task-title').text(task.task_description);
             projectTemplate.tasks.push($task.get(0).outerHTML);
         });
         projectTemplate.head = $head.get(0).outerHTML;
@@ -175,7 +175,7 @@ function updateProject(projectId) {
                     drawProject(projectHTML);
                 }else {
                     // update on UI side
-                    uiGetProjectById(projectId).find('div.project-name').html(projectName);
+                    uiGetProjectById(projectId).find('div.project-name').text(projectName);
                 }
                 $('#dialog_create_update_project').dialog('close');
             } else if ('error' === data.status) {
@@ -230,7 +230,7 @@ function editTask($dialog) {
             if ('success' === data.status) {
                 // update on UI side
                 var $task = uiGetTaskById($dialog.data('taskId'));
-                $task.find('.task-title').html(data.task.description);
+                $task.find('.task-title').text(data.task.description);
                 $task.attr('data-task-status-id', data.task.status_id);
                 $task.attr('data-task-deadline', data.task.dt_deadline);
                 $dialog.dialog('close');
@@ -265,14 +265,14 @@ $('div.body-content').on('click', 'div.control-box-project .delete', function ()
     var projectId = $(this).closest('.project-title').attr('data-project-id');
     // set project name to dialog
     $('#dialog_confirm_delete')
-        .dialog('option', 'title', 'Do you want to delete project ' + $(this).parent().prev('.project-name').html() + '?')
+        .dialog('option', 'title', 'Do you want to delete project ' + $(this).parent().prev('.project-name').text() + '?')
         .data('projectId', projectId)
         .dialog('open');
 });
 $('div.body-content').on('click', 'div.control-box-project .edit', function () {
     var projectId = $(this).closest('.project-title').attr('data-project-id');
     // set project name to dialog
-    $('#project_name_edit').val($(this).parent().prev('.project-name').html());
+    $('#project_name_edit').val($(this).parent().prev('.project-name').text());
     $('#dialog_create_update_project')
         .dialog('option', 'title', 'Project editing')
         .data('projectId', projectId)
@@ -302,7 +302,7 @@ $('div.body-content').on('click', 'div.project-task .new-task-btn', function () 
             if ('success' === data.status) {
                 var $taskTemplate = getTemplate('task');
                 $taskTemplate.attr('data-task-id', data.task.id);
-                $taskTemplate.find('div.task-title').html(data.task.description);
+                $taskTemplate.find('div.task-title').text(data.task.description);
                 // get last existing task to append to
                 var existingTasks = $projectTask.parent().find('.task-item');
                 if (existingTasks.length) {
@@ -337,7 +337,7 @@ $('div.body-content').on('click', 'div.task-item .edit', function () {
     var taskId   = $taskItem.attr('data-task-id');
     var deadline = $taskItem.attr('data-task-deadline');
     // set current value
-    $('#task-edit-name').val($taskItem.find('div.task-title').html());
+    $('#task-edit-name').val($taskItem.find('div.task-title').text());
     // set status
     $('#task-edit-status').val($taskItem.attr('data-task-status-id'));
     // set deadline
