@@ -55,6 +55,15 @@ class ProjectSearch extends Project
 
         $projects = $query->all();
 
+        // get only project list
+        $queryProject = (new \yii\db\Query())->select(['p.id', 'p.name', 'p.status_id'])
+            ->from(['p' => 'project'])
+            ->innerJoin(['s' => 'status'], 's.id = p.status_id')
+            ->where('user_id = :user_id', ['user_id' => $userId])
+            ->andWhere('s.str_id != :status', ['status' => Status::STATUS_DELETED])
+            ->orderBy('p.id');
+        $projectList = $queryProject->all();
+
         // group tasks by project
         $result = [];
         foreach ($projects as $project) {
@@ -74,6 +83,16 @@ class ProjectSearch extends Project
             // check whether loaded empty task record
             if ($task['task_id']) {
                 $result[$project['id']]['tasks'][] = $task;
+            }
+        }
+        // add empty projects
+        foreach ($projectList as $project) {
+            if (!isset($result[$project['id']])) {
+                $result[$project['id']] = [
+                    'name' => $project['name'],
+                    'status_id' => $project['status_id'],
+                    'tasks' => [],
+                ];
             }
         }
 
