@@ -28,6 +28,7 @@ $this->title = 'RubyGarage Application';
 </script>
 <div class="site-index">
 
+    <?php if (Yii::$app->user->id): ?>
     <div class="jumbotron">
         <h1>My projects</h1>
     </div>
@@ -37,6 +38,7 @@ $this->title = 'RubyGarage Application';
             <p class="text-center"><a id="new_project" class="btn btn-primary add-project" href="javascript:void(0)">Add TODO List &raquo;</a></p>
         </div>
     </div>
+    <?php endif; ?>
     <div id="template">
         <div class="row project-section">
             <div class="row project-title" data-project-id="">
