@@ -123,11 +123,11 @@ $this->title = 'RubyGarage Application';
         'buttons' => [
             [
                 'text' => 'OK',
-                'click' => new JsExpression('function(){ editTask($(this).data(\'taskId\')); $(this).dialog("close");}'),
+                'click' => new JsExpression('function(){ editTask($(this));}'),
             ],
             [
                 'text' => 'Cancel',
-                'click' => new JsExpression('function(){$(this).dialog("close");}'),
+                'click' => new JsExpression('function(){$(this).dialog("close"); $(\'#dialog_edit_task_error\').hide();}'),
             ],
         ]
     ]
@@ -143,4 +143,5 @@ $this->title = 'RubyGarage Application';
     <span>Deadline: </span><?= \yii\jui\DatePicker::widget(['id' => 'task-edit-deadline', 'dateFormat' => 'dd.MM.yy'
     ]) ?>
 </div>
+<span id="dialog_edit_task_error" class="error-summary error-messages" ></span>
 <?php \yii\jui\Dialog::end() ?>

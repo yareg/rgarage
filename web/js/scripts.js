@@ -209,12 +209,15 @@ function deleteTask(taskId) {
     });
 }
 
-function editTask(taskId) {
-    var url = substituteParams(urlList.task.update, {"id": taskId});
+function editTask($dialog) {
+    var url = substituteParams(urlList.task.update, {"id": $dialog.data('taskId')});
     var name = $('#task-edit-name').val();
     var statusId = $('#task-edit-status').val();
     var deadline = $('#task-edit-deadline').datepicker('getDate') ? $('#task-edit-deadline').datepicker('getDate')/1000 : null;
-
+    var $errorBox = $('#dialog_edit_task_error');
+    if (!validator.taskEdit($errorBox)) {
+        return false;
+    }
     $.ajax({
         "type": "POST",
         "url": url,
@@ -226,10 +229,14 @@ function editTask(taskId) {
         "success": function (data) {
             if ('success' === data.status) {
                 // update on UI side
-                var $task = uiGetTaskById(taskId);
+                var $task = uiGetTaskById($dialog.data('taskId'));
                 $task.find('.task-title').html(data.task.description);
                 $task.attr('data-task-status-id', data.task.status_id);
                 $task.attr('data-task-deadline', data.task.dt_deadline);
+                $dialog.dialog('close');
+            } else if ('error' == data.status) {
+                $errorBox.text(data.message);
+                $errorBox.show();
             }
         },
         "error": function () {
@@ -333,7 +340,6 @@ $('div.body-content').on('click', 'div.task-item .edit', function () {
     $('#task-edit-name').val($taskItem.find('div.task-title').html());
     // set status
     $('#task-edit-status').val($taskItem.attr('data-task-status-id'));
-    console.log($taskItem.attr('data-task-deadline'));
     // set deadline
     if (deadline) {
         $('#task-edit-deadline').datepicker('setDate', new Date(deadline*1000));
@@ -426,5 +432,34 @@ var validator = {
             $errorBox.show();
         }
         return result;
+    },
+    taskEdit: function($errorBox) {
+        var taskName = $('#task-edit-name').val();
+        var result = true;
+        if (taskName.length < 3) {
+            $errorBox.text('Task name should have at least 3 characters long');
+            var result = false;
+        }
+        if (taskName.length > 255) {
+            $errorBox.text('Task name cannot be longer, than 255 symbols');
+            var result = false;
+        }
+
+        if (!result) {
+            $errorBox.show();
+            return result;
+        }
+
+        // also check datepicker value format
+        var deadline = $('#task-edit-deadline').val();
+        if (deadline) {
+            if (! /^\d{2}\.\d{2}\.\d{2}$/.test(deadline)) {
+                $errorBox.text('Entered date value is incorrect');
+                $errorBox.show();
+                result = false;
+            }
+        }
+        return result;
     }
+
 }
